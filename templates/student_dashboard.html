@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #ffffff;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: #000000 !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .stat-card {
+            border-radius: 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+            transition: transform 0.2s;
+            border: 2px solid rgba(0,0,0,0.1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card h5 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .stat-card h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 15px 0;
+        }
+
+        .card {
+            border-radius: 0;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            border-radius: 0 !important;
+            font-weight: 600;
+        }
+
+        h2 {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .btn {
+            border-radius: 0;
+            font-weight: 500;
+        }
+
+        .btn-sm {
+            padding: 6px 16px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark">
+        <div class="container-fluid">
+            <span class="navbar-brand fs-5 fw-bold"> Student Dashboard</span>
+            <div>
+                <a href="/student/drives" class="btn btn-outline-light btn-sm me-2">View Drives</a>
+                <a href="/student/my-applications" class="btn btn-outline-light btn-sm me-2">My Applications</a>
+                <a href="/student/profile" class="btn btn-outline-light btn-sm me-2">Profile</a>
+                <a href="/logout" class="btn btn-outline-danger btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        <h2>Welcome, {{ student.name }}!</h2>
+        <p class="text-muted">{{ student.email }}</p>
+        
+        <div class="row mt-4">
+            <div class="col-md-4 mb-3">
+                <div class="card text-white bg-info stat-card">
+                    <div class="card-body">
+                        <h5>Available Drives</h5>
+                        <h2>{{ total_drives }}</h2>
+                        <a href="/student/drives" class="btn btn-light btn-sm mt-2">View Drives</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-3">
+                <div class="card text-white bg-success stat-card">
+                    <div class="card-body">
+                        <h5>My Applications</h5>
+                        <h2>{{ my_applications }}</h2>
+                        <a href="/student/my-applications" class="btn btn-light btn-sm mt-2">View Applications</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4 mb-3">
+                <div class="card text-white bg-warning stat-card">
+                    <div class="card-body">
+                        <h5>My Profile</h5>
+                        <p class="mb-1"><strong>CGPA:</strong> {{ student.cgpa }}</p>
+                        <p class="mb-1"><strong>Branch:</strong> {{ student.branch }}</p>
+                        <a href="/student/profile" class="btn btn-light btn-sm mt-2">Edit Profile</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0">Your Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Name:</strong> {{ student.name }}</p>
+                        <p><strong>Email:</strong> {{ student.email }}</p>
+                        <p><strong>Phone:</strong> {{ student.phone }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Degree:</strong> {{ student.degree }}</p>
+                        <p><strong>Branch:</strong> {{ student.branch }}</p>
+                        <p><strong>CGPA:</strong> {{ student.cgpa }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
