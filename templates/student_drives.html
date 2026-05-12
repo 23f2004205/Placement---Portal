@@ -61,6 +61,7 @@
                 <a href="/student/drives" class="btn btn-outline-light btn-sm me-2">Drives</a>
                 <a href="/student/my-applications" class="btn btn-outline-light btn-sm me-2">My Applications</a>
                 <a href="/student/profile" class="btn btn-outline-light btn-sm me-2">Profile</a>
+                <a href="/student/interview "class="btn btn-outline-light btn-sm">Mock Interview</a>
                 <a href="/logout" class="btn btn-outline-danger btn-sm">Logout</a>
             </div>
         </div>
@@ -83,10 +84,31 @@
                 {% for drive in drives %}
                 <div class="col-md-6 mb-3">
                     <div class="card h-100">
+
                         <div class="card-header bg-dark text-white">
-                            <h5 class="mb-0">{{ drive.job_title }}</h5>
-                            <small>{{ drive.company_name }}</small>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-0">{{ drive.job_title }}</h5>
+                                    <small>{{ drive.company_name }}</small>
+                                </div>
+                                <div>
+                                    {% if drive.match_percentage >= 70 %}
+                                        <span class="badge bg-success" style="font-size: 1rem; padding: 8px 15px;">
+                                            {{ drive.match_percentage }}% Match ✓
+                                        </span>
+                                    {% elif drive.match_percentage >= 50 %}
+                                        <span class="badge bg-warning text-dark" style="font-size: 1rem; padding: 8px 15px;">
+                                            {{ drive.match_percentage }}% Match
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary" style="font-size: 1rem; padding: 8px 15px;">
+                                            {{ drive.match_percentage }}% Match
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
+
                         <div class="card-body">
                             <p class="mb-2"><strong>Description:</strong> {{ drive.job_description }}</p>
                             <p class="mb-2"><strong>Eligibility:</strong> {{ drive.eligibility_criteria }}</p>
@@ -94,13 +116,17 @@
                             <p class="mb-2"><strong>Location:</strong> {{ drive.location }}</p>
                             <p class="mb-0"><strong>Deadline:</strong> {{ drive.application_deadline }}</p>
                         </div>
+
+                        <!-- FIX: Changed <a href> to <form method="POST"> -->
                         <div class="card-footer bg-white">
-                            <a href="/student/apply/{{ drive.id }}" 
-                               class="btn btn-dark w-100"
-                               onclick="return confirm('Apply for {{ drive.job_title }} at {{ drive.company_name }}?')">
-                                Apply Now
-                            </a>
+                            <form action="/student/apply/{{ drive.id }}" method="POST">
+                                <button type="submit" class="btn btn-dark w-100"
+                                    onclick="return confirm('Apply for {{ drive.job_title }} at {{ drive.company_name }}?')">
+                                    Apply Now
+                                </button>
+                            </form>
                         </div>
+
                     </div>
                 </div>
                 {% endfor %}

@@ -3,9 +3,10 @@
 <head>
     <title>Admin Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         body {
-            background: #ffffff;
+            background: #f4f6f9;
             min-height: 100vh;
         }
 
@@ -14,105 +15,410 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
+        /* ── KPI Cards ── */
         .stat-card {
             border-radius: 0;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
             transition: transform 0.2s, box-shadow 0.2s;
             border: 2px solid rgba(0,0,0,0.1);
             cursor: pointer;
             text-decoration: none;
             display: block;
             color: white;
+            padding: 20px;
         }
-
         .stat-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+            transform: translateY(-6px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
             color: white;
         }
-
         .stat-card h5 {
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            opacity: 0.9;
+            opacity: 0.85;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 0;
         }
-
         .stat-card h2 {
-            font-size: 2.5rem;
+            font-size: 2.8rem;
             font-weight: 700;
-            margin: 15px 0 0 0;
+            margin: 10px 0 4px;
+            line-height: 1;
+        }
+        .stat-card small {
+            opacity: 0.8;
+            font-size: 0.8rem;
         }
 
-        .btn {
+        /* ── Chart Cards ── */
+        .chart-card {
+            background: #fff;
             border-radius: 0;
-            font-weight: 500;
+            border: 2px solid rgba(0,0,0,0.08);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.08);
+        }
+        .chart-card .card-header {
+            background: #000;
+            color: #fff;
+            border-radius: 0;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 12px 18px;
+            border: none;
+        }
+        .chart-card .card-body {
+            padding: 20px;
         }
 
-        .btn-sm {
-            padding: 6px 16px;
-        }
-
-        h2 {
+        /* ── Section heading ── */
+        .section-label {
+            font-size: 0.75rem;
             font-weight: 700;
-            color: #2c3e50;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #6c757d;
+            margin-bottom: 12px;
+            margin-top: 28px;
         }
+
+        /* ── Placement rate table ── */
+        .rate-bar-bg {
+            background: #e9ecef;
+            height: 8px;
+            border-radius: 0;
+            overflow: hidden;
+        }
+        .rate-bar-fill {
+            height: 100%;
+            background: #198754;
+        }
+        table th {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #6c757d;
+            border-top: none;
+        }
+
+        /* ── Activity feed ── */
+        .activity-item {
+            border-left: 3px solid #000;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+        }
+        .status-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn { border-radius: 0; font-weight: 500; }
+        .btn-sm { padding: 6px 16px; }
+        h2.page-title { font-weight: 700; color: #2c3e50; }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand fs-5 fw-bold" href="/admin/dashboard">Admin Dashboard</a>
-            <div>
-                <a href="/logout" class="btn btn-outline-danger btn-sm">Logout</a>
+
+<nav class="navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand fs-5 fw-bold" href="/admin/dashboard">Admin Dashboard</a>
+        <div class="d-flex gap-2">
+            <a href="/admin/students" class="btn btn-outline-light btn-sm">Students</a>
+            <a href="/admin/companies" class="btn btn-outline-light btn-sm">Companies</a>
+            <a href="/admin/drives" class="btn btn-outline-light btn-sm">Drives</a>
+            <a href="/admin/applications" class="btn btn-outline-light btn-sm">Applications</a>
+            <a href="/logout" class="btn btn-outline-danger btn-sm">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid px-4 mt-4">
+
+    <h2 class="page-title">Admin Dashboard</h2>
+    <p class="text-muted mb-0">Click on any card to manage. Charts update from live data.</p>
+
+    <!-- ── KPI Row ── -->
+    <div class="section-label">Overview</div>
+    <div class="row g-3 mb-2">
+        <div class="col-md-2">
+            <a href="/admin/students" class="stat-card bg-primary">
+                <h5>Total Students</h5>
+                <h2>{{ students }}</h2>
+                <small>Click to manage →</small>
+            </a>
+        </div>
+        <div class="col-md-2">
+            <a href="/admin/companies" class="stat-card bg-success">
+                <h5>Total Companies</h5>
+                <h2>{{ companies }}</h2>
+                <small>Click to manage →</small>
+            </a>
+        </div>
+        <div class="col-md-2">
+            <a href="/admin/drives" class="stat-card bg-info">
+                <h5>Placement Drives</h5>
+                <h2>{{ drives }}</h2>
+                <small>Click to manage →</small>
+            </a>
+        </div>
+        <div class="col-md-2">
+            <a href="/admin/applications" class="stat-card bg-warning">
+                <h5>Applications</h5>
+                <h2>{{ applications }}</h2>
+                <small>Click to view →</small>
+            </a>
+        </div>
+        <div class="col-md-2">
+            <div class="stat-card bg-dark" style="cursor:default;">
+                <h5>Placed Students</h5>
+                <h2>{{ total_placed }}</h2>
+                <small>Selected status</small>
             </div>
         </div>
-    </nav>
-
-    <div class="container mt-4">
-        <h2>Admin Dashboard</h2>
-        <p class="text-muted">Click on any card to view details</p>
-        
-        <div class="row mt-4">
-            <div class="col-md-3 mb-3">
-                <a href="/admin/students" class="stat-card bg-primary">
-                    <div class="card-body">
-                        <h5>Total Students</h5>
-                        <h2>{{ students }}</h2>
-                        <small style="opacity: 0.8;">Click to manage →</small>
-                    </div>
-                </a>
-            </div>
-            
-            <div class="col-md-3 mb-3">
-                <a href="/admin/companies" class="stat-card bg-success">
-                    <div class="card-body">
-                        <h5>Total Companies</h5>
-                        <h2>{{ companies }}</h2>
-                        <small style="opacity: 0.8;">Click to manage →</small>
-                    </div>
-                </a>
-            </div>
-            
-            <div class="col-md-3 mb-3">
-                <a href="/admin/drives" class="stat-card bg-info">
-                    <div class="card-body">
-                        <h5>Placement Drives</h5>
-                        <h2>{{ drives }}</h2>
-                        <small style="opacity: 0.8;">Click to manage →</small>
-                    </div>
-                </a>
-            </div>
-            
-            <div class="col-md-3 mb-3">
-                <a href="/admin/applications" class="stat-card bg-warning">
-                    <div class="card-body">
-                        <h5>Applications</h5>
-                        <h2>{{ applications }}</h2>
-                        <small style="opacity: 0.8;">Click to view →</small>
-                    </div>
-                </a>
+        <div class="col-md-2">
+            <div class="stat-card" style="background:#6f42c1;cursor:default;">
+                <h5>Placement Rate</h5>
+                <h2>{{ placement_rate }}<span style="font-size:1.3rem">%</span></h2>
+                <small>Of all students</small>
             </div>
         </div>
     </div>
+
+    <!-- ── Charts Row 1 ── -->
+    <div class="section-label">Analytics</div>
+    <div class="row g-3 mb-3">
+
+        <div class="col-md-8">
+            <div class="chart-card">
+                <div class="card-header">📈 Application Trend (last 6 months)</div>
+                <div class="card-body">
+                    <canvas id="trendChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="chart-card h-100">
+                <div class="card-header">🔵 Applications by Status</div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <canvas id="statusChart" height="220"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── Charts Row 2 ── -->
+    <div class="row g-3 mb-3">
+
+        <div class="col-md-7">
+            <div class="chart-card">
+                <div class="card-header">🎓 Branch-wise: Enrolled vs Placed</div>
+                <div class="card-body">
+                    <canvas id="branchChart" height="120"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <div class="chart-card">
+                <div class="card-header">🏢 Top Companies by Applications</div>
+                <div class="card-body">
+                    <canvas id="companyChart" height="190"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── Table + Feed Row ── -->
+    <div class="row g-3 mb-5">
+
+        <div class="col-md-6">
+            <div class="chart-card">
+                <div class="card-header">📊 Placement Rate by Branch</div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-3 py-2">Branch</th>
+                                <th class="text-center py-2">Enrolled</th>
+                                <th class="text-center py-2">Placed</th>
+                                <th class="py-2">Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in range(branch_labels|length) %}
+                            {% set rate = (branch_placed[i] / branch_totals[i] * 100)|round(1) if branch_totals[i] > 0 else 0 %}
+                            <tr>
+                                <td class="ps-3"><strong>{{ branch_labels[i] }}</strong></td>
+                                <td class="text-center">{{ branch_totals[i] }}</td>
+                                <td class="text-center text-success fw-bold">{{ branch_placed[i] }}</td>
+                                <td style="min-width:140px;">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rate-bar-bg flex-grow-1">
+                                            <div class="rate-bar-fill" style="width:{{ rate }}%"></div>
+                                        </div>
+                                        <small class="text-success fw-bold" style="min-width:36px;">{{ rate }}%</small>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">
+                                    No branch data yet — <a href="/add-test-data">add test data</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="chart-card">
+                <div class="card-header">🕐 Recent Applications</div>
+                <div class="card-body">
+                    {% for item in recent_activity %}
+                    <div class="activity-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>{{ item.actor }}</strong>
+                                <span class="text-muted mx-1">→</span>
+                                <strong>{{ item.target }}</strong>
+                                <div><small class="text-muted">{{ item.ts[:16] if item.ts else '—' }}</small></div>
+                            </div>
+                            {% if item.status == 'applied' %}
+                                <span class="status-badge bg-primary text-white">applied</span>
+                            {% elif item.status == 'shortlisted' %}
+                                <span class="status-badge bg-warning text-dark">shortlisted</span>
+                            {% elif item.status == 'selected' %}
+                                <span class="status-badge bg-success text-white">selected</span>
+                            {% elif item.status == 'rejected' %}
+                                <span class="status-badge bg-danger text-white">rejected</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-center text-muted py-3">
+                        No activity yet — <a href="/add-test-data">add test data</a>
+                    </p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div><!-- /container -->
+
+<script>
+    new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+            labels: {{ monthly_labels | tojson }},
+            datasets: [{
+                label: 'Applications',
+                data: {{ monthly_counts | tojson }},
+                borderColor: '#0d6efd',
+                backgroundColor: 'rgba(13,110,253,0.08)',
+                borderWidth: 2.5,
+                pointRadius: 5,
+                pointBackgroundColor: '#0d6efd',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                fill: true,
+                tension: 0.35
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0f0f0' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    new Chart(document.getElementById('statusChart'), {
+        type: 'doughnut',
+        data: {
+            labels: {{ status_labels | tojson }},
+            datasets: [{
+                data: {{ status_counts | tojson }},
+                backgroundColor: ['#0d6efd','#ffc107','#198754','#dc3545','#0dcaf0'],
+                borderWidth: 3,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '60%',
+            plugins: {
+                legend: { position: 'bottom', labels: { padding: 14, font: { size: 11 } } }
+            }
+        }
+    });
+
+    new Chart(document.getElementById('branchChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ branch_labels | tojson }},
+            datasets: [
+                {
+                    label: 'Enrolled',
+                    data: {{ branch_totals | tojson }},
+                    backgroundColor: 'rgba(13,110,253,0.18)',
+                    borderColor: '#0d6efd',
+                    borderWidth: 1.5
+                },
+                {
+                    label: 'Placed',
+                    data: {{ branch_placed | tojson }},
+                    backgroundColor: '#198754',
+                    borderWidth: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'top', labels: { font: { size: 12 } } } },
+            scales: {
+                y: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0f0f0' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    new Chart(document.getElementById('companyChart'), {
+        type: 'bar',
+        data: {
+            labels: {{ company_labels | tojson }},
+            datasets: [{
+                label: 'Applications',
+                data: {{ company_counts | tojson }},
+                backgroundColor: ['#0d6efd','#198754','#0dcaf0','#ffc107','#dc3545'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { beginAtZero: true, ticks: { stepSize: 1 }, grid: { color: '#f0f0f0' } },
+                y: { grid: { display: false } }
+            }
+        }
+    });
+</script>
+
 </body>
 </html>

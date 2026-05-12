@@ -44,6 +44,64 @@
         h4, h5 {
             font-weight: 700;
         }
+
+        /* Profile Picture Styles */
+        .profile-pic-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .profile-pic {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border: 3px solid #000;
+        }
+
+        .profile-pic-placeholder {
+            width: 120px;
+            height: 120px;
+            background: #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #000;
+        }
+
+        .profile-pic-placeholder span {
+            font-size: 3rem;
+            color: #ffffff;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .profile-pic-upload-label {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #000;
+            color: #fff;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+            border: 2px solid #fff;
+        }
+
+        .profile-pic-upload-label:hover {
+            background: #333;
+        }
+
+        #profile_pic_input {
+            display: none;
+        }
+
+        .profile-info-text {
+            color: #2c3e50;
+        }
     </style>
 </head>
 <body>
@@ -54,6 +112,7 @@
                 <a href="/student/drives" class="btn btn-outline-light btn-sm me-2">Drives</a>
                 <a href="/student/my-applications" class="btn btn-outline-light btn-sm me-2">My Applications</a>
                 <a href="/student/profile" class="btn btn-outline-light btn-sm me-2">Profile</a>
+                <a href="/student/interview "class="btn btn-outline-light btn-sm">Mock Interview</a>
                 <a href="/logout" class="btn btn-outline-danger btn-sm">Logout</a>
             </div>
         </div>
@@ -73,20 +132,55 @@
 
                 <div class="card">
                     <div class="card-header bg-dark text-white">
-                        <h4 class="mb-0">Edit My Profile</h4>
+                        <h4 class="mb-0">My Profile</h4>
                     </div>
                     <div class="card-body p-3">
 
                         <form method="POST" action="/student/profile" enctype="multipart/form-data">
 
-                            <!-- Resume Upload Section -->
+                            <!-- ====== PROFILE PICTURE SECTION ====== -->
+                            <div class="d-flex align-items-center mb-4 gap-4">
+                                <div class="profile-pic-wrapper">
+                                    {% if student.profile_picture %}
+                                        <img src="/static/uploads/{{ student.profile_picture }}"
+                                             class="profile-pic"
+                                             id="profilePreview"
+                                             alt="Profile Picture">
+                                    {% else %}
+                                        <div class="profile-pic-placeholder" id="profilePlaceholder">
+                                            <span>{{ student.name[0].upper() }}</span>
+                                        </div>
+                                        <img src="" class="profile-pic d-none" id="profilePreview" alt="Profile Picture">
+                                    {% endif %}
+
+                                    <!-- Camera icon to trigger file input -->
+                                    <label class="profile-pic-upload-label" for="profile_pic_input" title="Change photo">
+                                        📷
+                                    </label>
+                                    <input type="file" name="profile_picture" id="profile_pic_input"
+                                           accept=".jpg,.jpeg,.png,.webp">
+                                </div>
+
+                                <div class="profile-info-text">
+                                    <h5 class="mb-1">{{ student.name }}</h5>
+                                    <p class="mb-1 text-muted" style="font-size: 0.9rem;">{{ student.email }}</p>
+                                    <p class="mb-0 text-muted" style="font-size: 0.85rem;">
+                                        {{ student.degree }} • {{ student.branch }} • CGPA: {{ student.cgpa }}
+                                    </p>
+                                    <small class="text-muted">Click 📷 to change photo (JPG, PNG only)</small>
+                                </div>
+                            </div>
+
+                            <hr class="my-3">
+
+                            <!-- ====== RESUME SECTION ====== -->
                             <h5 class="mb-2">Resume</h5>
                             <div class="mb-3">
                                 {% if student.resume %}
                                     <div class="alert alert-success py-2 mb-2">
                                         ✅ Resume uploaded!
-                                        <a href="/static/uploads/{{ student.resume }}" 
-                                           target="_blank" 
+                                        <a href="/static/uploads/{{ student.resume }}"
+                                           target="_blank"
                                            class="btn btn-sm btn-dark ms-2">
                                             View Resume
                                         </a>
@@ -97,18 +191,20 @@
                             </div>
 
                             <hr class="my-3">
+
+                            <!-- ====== PERSONAL DETAILS ====== -->
                             <h5 class="mb-2">Personal Details</h5>
 
                             <div class="row">
                                 <div class="col-md-6 mb-2">
                                     <label class="form-label">Full Name</label>
-                                    <input type="text" name="name" class="form-control" 
+                                    <input type="text" name="name" class="form-control"
                                            value="{{ student.name }}" required>
                                 </div>
 
                                 <div class="col-md-6 mb-2">
                                     <label class="form-label">Phone</label>
-                                    <input type="tel" name="phone" class="form-control" 
+                                    <input type="tel" name="phone" class="form-control"
                                            value="{{ student.phone }}" required>
                                 </div>
                             </div>
@@ -128,42 +224,82 @@
 
                                 <div class="col-md-4 mb-2">
                                     <label class="form-label">Branch</label>
-                                    <input type="text" name="branch" class="form-control" 
+                                    <input type="text" name="branch" class="form-control"
                                            value="{{ student.branch }}" required>
                                 </div>
 
                                 <div class="col-md-4 mb-2">
                                     <label class="form-label">CGPA</label>
-                                    <input type="number" name="cgpa" class="form-control" 
+                                    <input type="number" name="cgpa" class="form-control"
                                            value="{{ student.cgpa }}" step="0.01" min="0" max="10" required>
                                 </div>
                             </div>
 
                             <hr class="my-3">
+
+                            <!-- ====== CHANGE PASSWORD ====== -->
                             <h5 class="mb-2">Change Password <small class="text-muted">(Optional)</small></h5>
 
                             <div class="row">
                                 <div class="col-md-6 mb-2">
                                     <label class="form-label">New Password</label>
-                                    <input type="password" name="new_password" class="form-control" 
+                                    <input type="password" name="new_password" class="form-control"
                                            placeholder="Enter new password" minlength="6">
                                 </div>
 
                                 <div class="col-md-6 mb-2">
                                     <label class="form-label">Confirm Password</label>
-                                    <input type="password" name="confirm_password" class="form-control" 
+                                    <input type="password" name="confirm_password" class="form-control"
                                            placeholder="Confirm password">
                                 </div>
                             </div>
-
-                            <button type="submit" class="btn btn-dark w-100 mt-3">
+                            <button type="submit" class="btn btn-dark w-100 mt-3" id="saveBtn">
                                 Save Changes
                             </button>
+                            
+                               
                         </form>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
+
+    <!-- Live preview of selected photo before saving -->
+    <script>
+    const hasExistingPic = {{ 'true' if student.profile_picture else 'false' }};
+    const saveBtn = document.getElementById('saveBtn');
+
+    // Block save if no existing pic and none selected
+    if (!hasExistingPic) {
+        saveBtn.disabled = true;
+        saveBtn.title = 'Please upload a profile photo first';
+        saveBtn.textContent = '📷 Upload a photo to save';
+        saveBtn.style.background = '#555';
+        saveBtn.style.borderColor = '#555';
+    }
+
+    document.getElementById('profile_pic_input').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Enable save button once photo selected
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save Changes';
+        saveBtn.style.background = '';
+        saveBtn.style.borderColor = '';
+
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+            const preview = document.getElementById('profilePreview');
+            const placeholder = document.getElementById('profilePlaceholder');
+            preview.src = ev.target.result;
+            preview.classList.remove('d-none');
+            if (placeholder) placeholder.classList.add('d-none');
+        };
+        reader.readAsDataURL(file);
+    });
+</script>
 </body>
 </html>

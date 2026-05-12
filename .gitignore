@@ -1,0 +1,6 @@
+*.pdf
+*.docx
+*.db
+__pycache__/
+*.pyc
+tempCodeRunnerFile.py
